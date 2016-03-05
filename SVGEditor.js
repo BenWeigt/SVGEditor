@@ -6,7 +6,7 @@ function SVGEditor(nAnchor, pConfig)
 		enumerable: false,
 		configurable: false,
 		writeable: false,
-		value: 'static'
+		value: undefined
 	};
 	// ID & Container
 	pPropertyConf.value = 'SVGEditor-' + SVGEditor._generateEditorId();
@@ -23,8 +23,6 @@ function SVGEditor(nAnchor, pConfig)
 	document.head.appendChild(pSheet);
 	pPropertyConf.value = pSheet.sheet;
 	Object.defineProperty(this, 'sheet', pPropertyConf);
-
-
 }
 
 /**
@@ -68,6 +66,7 @@ SVGEditor.prototype.getAlphaUniqueIdGenerator = function()
 
 /**
  * Unique ID generator for SVGEditor instances. Called by SVGEditor during instantiation.
+ * 
  * @type {Function}
  */
 SVGEditor._generateEditorId = SVGEditor.prototype.getAlphaUniqueIdGenerator();
