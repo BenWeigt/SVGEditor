@@ -3,17 +3,26 @@
 	<head>
 		<title>Demo</title>
 		<script src="SVGEditor.js"></script>
+		<script src="CSSClass/CssClass.js"></script>
 	</head>
 	<body>
-		<div id="SVGEditor">
+		<div style="margin-bottom: 100px;" id="SVGEditorA">
 		</div>
+
+
+
+		<div style="margin-bottom: 100px;" id="SVGEditorB">
+		</div>
+
+
+
+		<div style="margin-bottom: 100px;" id="SVGEditorC">
+		</div>
+
 		<script>
-			window.editor = new SVGEditor(document.getElementById('SVGEditor'), {});
-
-
-
-
-
+			window.editor = new SVGEditor(document.getElementById('SVGEditorA'), {});
+			window.editor = new SVGEditor(document.getElementById('SVGEditorB'), {});
+			window.editor = new SVGEditor(document.getElementById('SVGEditorC'), {});
 		</script>
 	</body>
 </html>

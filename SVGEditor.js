@@ -9,7 +9,7 @@ function SVGEditor(nAnchor, pConfig)
 		value: undefined
 	};
 	// ID & Container
-	pPropertyConf.value = 'SVGEditor-' + SVGEditor._generateEditorId();
+	pPropertyConf.value = 'SVGEditor-' + SVGEditor.generateEditorId();
 	Object.defineProperty(this, 'id', pPropertyConf);
 	
 	pPropertyConf.value = nAnchor;
@@ -23,7 +23,31 @@ function SVGEditor(nAnchor, pConfig)
 	document.head.appendChild(pSheet);
 	pPropertyConf.value = pSheet.sheet;
 	Object.defineProperty(this, 'sheet', pPropertyConf);
+
+
+		// Init all modules
+	for (var i = 0; i < this.Modules.length; i++)
+	{
+		this.Modules[i](this);
+		console.log('added');
+	}
 }
+
+/**
+ * SVGEditor Modules
+ * 
+ * @type {Array}
+ */
+SVGEditor.prototype.Modules = [];
+
+/**
+ * SVGEditor Module creation. createModule expects a function to which is can suply 
+ *           a reference to the currently initialising editor during editor init.
+ *           
+ * @type {Function}
+ */
+SVGEditor.createModule = SVGEditor.prototype.Modules.push.bind(SVGEditor.prototype.Modules);
+
 
 /**
  * Unique Alpha-Hexavigesimal ID generator.
@@ -69,4 +93,4 @@ SVGEditor.prototype.getAlphaUniqueIdGenerator = function()
  * 
  * @type {Function}
  */
-SVGEditor._generateEditorId = SVGEditor.prototype.getAlphaUniqueIdGenerator();
+SVGEditor.generateEditorId = SVGEditor.prototype.getAlphaUniqueIdGenerator();
