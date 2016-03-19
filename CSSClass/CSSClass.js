@@ -1,23 +1,19 @@
 'use strict';
-
-SVGEditor.createModule(function(pEditor)
+SVGEditor.Modules.add('CSSClass', {order: 9}, function(pEditor)
 {
 	pEditor.CSSClass = {
-		newClass: function()
+		newClass: function(pParentClass)
 		{
-
+			return new CSSClass(pParentClass);
 		},
 
-
-
-
-
-
-
+		newSelector: function(strSelector)
+		{
+			return new CSSSelector(strSelector);
+		}
 	};
 
-
-	function CSSClass(pParent)
+	function CSSClass(pParentClass)
 	{
 		var pPropertyConf = {
 			enumerable: false,
@@ -26,19 +22,80 @@ SVGEditor.createModule(function(pEditor)
 			value: undefined
 		};
 		// ID & Container
-		pPropertyConf.value = pParent._nextSubClass();
+		pPropertyConf.value = pParentClass._nextSubClass();
 		Object.defineProperty(this, 'className', pPropertyConf);
 
 		pPropertyConf.value = alphaUniqueClassGenerator(this.className);
 		Object.defineProperty(this, '_nextSubClass', pPropertyConf);
+
+		this.rules = {};
+
+		this.s = '.'+this.className;
+		this.S = ' .'+this.className;
+		this.h = this.s+':hover';
+		this.H = this.S+':hover';
 	}
 
-	CSSClass.prototype.assignClassTo = function(nElement) 
+	CSSClass.prototype.applyClassTo = function(nElement) 
 	{
-		nElement._CSSClass = this;
+		nElement._CSSClassList = nElement._CSSClassList || {};
+		nElement._CSSClassList[this.className] = this;
 		nElement.classList.add(this.className);
 	};
 
+	CSSClass.prototype.removeClassFrom = function(nElement)
+	{
+		if (nElement._CSSClassList && nElement._CSSClassList[this.className])
+		{
+			delete nElement._CSSClassList[this.className];
+		}
+		nElement.classList.remove(this.className);
+	};
+
+
+
+	function CSSSelector(strSelector)
+	{
+		var pPropertyConf = {
+			enumerable: false,
+			configurable: false,
+			writeable: false,
+			value: undefined
+		};
+		// Selector
+		pPropertyConf.value = strSelector;
+		Object.defineProperty(this, 'selector', pPropertyConf);
+
+		this.rules = {};
+	}
+
+	CSSSelector.prototype.setRules = function(pRules)
+	{
+		for (var strKey in pRules)
+		{
+			this.rules[strKey] = pRules[strKey];
+		}
+		this._writeToStyles();
+		return this;
+	};
+
+	CSSSelector.prototype._writeToStyles = function()
+	{
+		if (this.currentSheetId !== undefined)
+		{
+			pEditor.sheet.deleteRule(this.currentSheetId);
+		}
+		this.currentRule = this.selector + '{';
+		for (var strKey in this.rules)
+		{
+			if (this.rules[strKey].length)
+			{
+				this.currentRule += strKey + ':' + this.rules[strKey] + ';';
+			}
+		}
+		this.currentRule += '}';
+		this.currentSheetId = pEditor.sheet.insertRule(this.currentRule, pEditor.sheet.cssRules.length);
+	};
 
 	/**
 	 * Unique Alpha-Hexavigesimal ID generator.
@@ -91,7 +148,8 @@ SVGEditor.createModule(function(pEditor)
 	{
 		SVGEditor._nextSubClass = alphaUniqueClassGenerator();
 	}
-	var m_pEditorCSSClass = new CSSClass(SVGEditor);
-	m_pEditorCSSClass.assignClassTo(pEditor.content);
 
+	var m_pEditorCSSClass = new CSSClass(SVGEditor);
+	m_pEditorCSSClass.applyClassTo(pEditor.content);
+	pEditor.CSSClass.root = m_pEditorCSSClass;
 });

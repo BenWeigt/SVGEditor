@@ -3,26 +3,38 @@
 	<head>
 		<title>Demo</title>
 		<script src="SVGEditor.js"></script>
-		<script src="CSSClass/CssClass.js"></script>
+
+		<script src="CssClass/CssClass.js"></script>
+		<script src="Animate/Animate.js"></script>
+
+		<script src="ElementConstructor/ElementConstructor.js"></script>
+
+		<script src="Canvas/Canvas.js"></script>
+		<script src="Canvas/PixelGrid/PixelGrid.js"></script>
 	</head>
 	<body>
-		<div style="margin-bottom: 100px;" id="SVGEditorA">
+		<div style="margin: 20px; display: inline-block;" id="SVGEditorA">
 		</div>
 
 
 
-		<div style="margin-bottom: 100px;" id="SVGEditorB">
+		<div style="margin: 20px; display: inline-block;" id="SVGEditorB">
 		</div>
 
 
 
-		<div style="margin-bottom: 100px;" id="SVGEditorC">
+		<div style="margin: 20px; display: inline-block;" id="SVGEditorC">
 		</div>
 
 		<script>
-			window.editor = new SVGEditor(document.getElementById('SVGEditorA'), {});
-			window.editor = new SVGEditor(document.getElementById('SVGEditorB'), {});
-			window.editor = new SVGEditor(document.getElementById('SVGEditorC'), {});
+			window.editor = new SVGEditor(document.getElementById('SVGEditorA'), {
+				canvas: {
+					width: 20,
+					height: 20
+				},
+				width: 400,
+				height: 400
+			});
 		</script>
 	</body>
 </html>
