@@ -20,7 +20,7 @@ SVGEditor.Modules.add('Canvas', {}, function(pEditor)
 	pEditor.Canvas.svg = m_nSVGCanvas;
 	
 
-
+	
 
 
 
