@@ -149,8 +149,8 @@ SVGEditor.Modules.add('Canvas/PixelGrid', {}, function(pEditor)
 
 	function getClosestPixel()
 	{
-		var x = Math.floor(((m_iOffsetX - m_iPadding) + (m_xStep / 2)) / (m_arrPixelMatrix.length - 1));
-		var y = Math.floor(((m_iOffsetY - m_iPadding) + (m_yStep / 2)) / (m_arrPixelMatrix[0].length - 1));
+		var x = Math.min(Math.max(Math.floor(((m_iOffsetX - m_iPadding) + (m_xStep / 2)) / m_xStep), 0), m_arrPixelMatrix.length - 1);
+		var y = Math.min(Math.max(Math.floor(((m_iOffsetY - m_iPadding) + (m_yStep / 2)) / m_yStep), 0), m_arrPixelMatrix[0].length - 1);
 		return m_arrPixelMatrix[x][y];
 	}
 
