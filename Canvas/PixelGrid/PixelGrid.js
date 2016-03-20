@@ -28,7 +28,7 @@ SVGEditor.Modules.add('Canvas/PixelGrid', {}, function(pEditor)
 	/**
 	 * Mouse Track
 	 */
-	var m_nActivePix = null;
+	pEditor.currentPixel = null;
 	var m_iOffsetX = 0;
 	var m_iOffsetY = 0;
 	var m_bMouseOver = false;
@@ -43,9 +43,9 @@ SVGEditor.Modules.add('Canvas/PixelGrid', {}, function(pEditor)
 		m_bMouseOver = true;
 	});
 	m_nSVGCanvas.addEventListener('click', function(evt){
-		if (m_nActivePix)
+		if (pEditor.currentPixel)
 		{
-			console.log(m_nActivePix.pos);
+			console.log(pEditor.currentPixel.pos);
 		}
 	});
 
@@ -119,29 +119,29 @@ SVGEditor.Modules.add('Canvas/PixelGrid', {}, function(pEditor)
 		if (m_bMouseOver)
 		{
 			var nActivePix = getClosestPixel();
-			if (m_nActivePix !== nActivePix)
+			if (pEditor.currentPixel !== nActivePix)
 			{
-				if (m_nActivePix)
+				if (pEditor.currentPixel)
 				{
-					m_css.pixA.removeClassFrom(m_nActivePix.dot);
-					m_arrColACss[m_nActivePix.pos.x].removeClassFrom(m_nSVGCanvas);
-					m_arrRowACss[m_nActivePix.pos.y].removeClassFrom(m_nSVGCanvas);
+					m_css.pixA.removeClassFrom(pEditor.currentPixel.dot);
+					m_arrColACss[pEditor.currentPixel.pos.x].removeClassFrom(m_nSVGCanvas);
+					m_arrRowACss[pEditor.currentPixel.pos.y].removeClassFrom(m_nSVGCanvas);
 				}
 				m_css.pixA.applyClassTo(nActivePix.dot);
 				m_arrColACss[nActivePix.pos.x].applyClassTo(m_nSVGCanvas);
 				m_arrRowACss[nActivePix.pos.y].applyClassTo(m_nSVGCanvas);
-				m_nActivePix = nActivePix;
+				pEditor.currentPixel = nActivePix;
 			}
 		}
 		else
 		{
 			// Clear
-			if (m_nActivePix)
+			if (pEditor.currentPixel)
 			{
-				m_css.pixA.removeClassFrom(m_nActivePix.dot);
-				m_arrColACss[m_nActivePix.pos.x].removeClassFrom(m_nSVGCanvas);
-				m_arrRowACss[m_nActivePix.pos.y].removeClassFrom(m_nSVGCanvas);
-				m_nActivePix = null;
+				m_css.pixA.removeClassFrom(pEditor.currentPixel.dot);
+				m_arrColACss[pEditor.currentPixel.pos.x].removeClassFrom(m_nSVGCanvas);
+				m_arrRowACss[pEditor.currentPixel.pos.y].removeClassFrom(m_nSVGCanvas);
+				pEditor.currentPixel = null;
 			}
 		}
 	});
