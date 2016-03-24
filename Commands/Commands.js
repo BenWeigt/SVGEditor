@@ -48,6 +48,13 @@ SVGEditor.Modules.add('Commands', {}, function(pEditor)
 			}
 			pEditor.activeDraw.l(pEditor.activePoint);
 		},
+		q: function(){
+			if (!pEditor.activeDraw)
+			{
+				return;
+			}
+			pEditor.activeDraw.q(pEditor.activePoint);
+		},
 		z: function(){
 			if (!pEditor.activeDraw)
 			{
@@ -137,6 +144,13 @@ SVGEditor.Modules.add('Commands', {}, function(pEditor)
 				return;
 			}
 			pEditor.activeDraw.L(pEditor.activePoint);
+		},
+		Q: function(){
+			if (!pEditor.activeDraw)
+			{
+				return;
+			}
+			pEditor.activeDraw.Q(pEditor.activePoint);
 		},
 		Z: function(){
 			if (!pEditor.activeDraw)

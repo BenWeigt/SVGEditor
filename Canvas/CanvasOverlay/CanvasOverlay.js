@@ -265,6 +265,12 @@ SVGEditor.Modules.add('Canvas/CanvasOverlay', {}, function(pEditor)
 				m_arrRowACss[pEditor.activePoint.pos.y].removeClassFrom(m_nSVGCanvas);
 				pEditor.activePoint = null;
 			}
+			for (var j = 0; j < m_arrHighlightedPoints.length; j++)
+			{
+				m_css.pixH.removeClassFrom(m_arrHighlightedPoints[j].dot);
+				m_arrHighlightedPoints[j].removeAllVectorsToPoints();
+				m_arrHighlightedPoints[j].removeVectorToCursor();
+			}
 		}
 	});
 
