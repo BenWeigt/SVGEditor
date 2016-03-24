@@ -35,7 +35,8 @@ SVGEditor.Modules.add('TextOut', {}, function(pEditor)
 		currentDraw: {
 			type: null,
 			path: null
-		}
+		},
+		svgOut: null
 	};
 
 	function _updateWriteout()
@@ -45,10 +46,12 @@ SVGEditor.Modules.add('TextOut', {}, function(pEditor)
 			currentDraw: {
 				type: pEditor.activeDraw ? pEditor.activeDraw.type : null,
 				path: pEditor.activeDraw ? pEditor.activeDraw.getPath() : null
-			}
+			},
+			svgOut: pEditor.Canvas.svg.outerHTML
 		};
 
 		if (m_pData.mousePos !== pData.mousePos ||
+			  m_pData.svgOut !== pData.svgOut ||
 			  m_pData.currentDraw.path !== pData.currentDraw.path ||
 			  m_pData.currentDraw.type !== pData.currentDraw.type)
 		{
@@ -84,7 +87,14 @@ SVGEditor.Modules.add('TextOut', {}, function(pEditor)
 			var nDrawV = pEditor.ElementConstructor.newElement('span', {}, m_pData.currentDraw.path);
 			nDrawL.appendChild(nDrawV);
 			pEditor.TextOut.target.appendChild(nDrawL);
-		}		
+		}
+
+		if (m_pData.svgOut)
+		{
+			var nFinalOut = pEditor.ElementConstructor.newElement('p', {});
+			nFinalOut.innerText = m_pData.svgOut;
+			pEditor.TextOut.target.appendChild(nFinalOut);
+		}
 	}
 
 	function _renderConsole()

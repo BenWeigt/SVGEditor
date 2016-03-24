@@ -89,7 +89,7 @@ SVGEditor.Modules.add('Canvas/Draw', {}, function(pEditor)
 		{
 			return;
 		}
-		this.points.push('Z');
+		this.points.push('z');
 		for (var i = this.points.length - 1; i >= 0; i--) 
 		{
 			if (/[m]/gi.test(this.points[i]))

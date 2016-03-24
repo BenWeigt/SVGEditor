@@ -5,16 +5,27 @@ SVGEditor.Modules.add('Commands', {}, function(pEditor)
 	pEditor.activeDraw = null;
 	pEditor.layers = [];
 	pEditor.Commands = {
-		setFillColor: function()
+		setFillColor: function(strColor)
 		{
-
+			if (pEditor.activeDraw)
+			try
+			{
+				pEditor.activeDraw.node.setAttributeNS(null, 'fill', strColor);
+			}
+			catch(e)
+			{}
 		},
 
 		setStrokeColor: function(strColor)
 		{
-
+			if (pEditor.activeDraw)
+			try
+			{
+				pEditor.activeDraw.node.setAttributeNS(null, 'stroke', strColor);
+			}
+			catch(e)
+			{}
 		},
-
 
 
 		m: function(){
@@ -164,27 +175,39 @@ SVGEditor.Modules.add('Commands', {}, function(pEditor)
 	pEditor.document.addEventListener('keypress', function(evt){
 		var iCode = evt.keyCode || evt.which;
 		var strKey = String.fromCharCode(iCode);
-		if (pEditor.activePoint && pEditor.Commands[strKey])
+		var strNodeName = evt.target.nodeName.toLowerCase();
+		var bFocusedInput = ((strNodeName === 'input' && evt.target.type === 'text') || strNodeName === 'textarea');
+		if (!bFocusedInput)
 		{
-			pEditor.Commands[strKey]();
+			if (pEditor.activePoint && pEditor.Commands[strKey])
+			{
+				pEditor.Commands[strKey]();
+			}
+			else if (parseInt(strKey, 10) > 0)
+			{
+				pEditor.Commands.selectLayer(parseInt(strKey, 10) - 1);
+			}
 		}
-		else if (parseInt(strKey, 10) > 0)
-		{
-			pEditor.Commands.selectLayer(parseInt(strKey, 10) - 1);
-		}
-		evt.preventDefault();
 	}, true);
 	pEditor.document.addEventListener('keydown', function(evt){
 		var iCode = evt.keyCode || evt.which;
-		if (iCode === 8 || iCode === 46)
+		var strNodeName = evt.target.nodeName.toLowerCase();
+		var bFocusedInput = ((strNodeName === 'input' && evt.target.type === 'text') || strNodeName === 'textarea');
+		
+		if (!bFocusedInput)
 		{
-			evt.preventDefault();
-			pEditor.Commands.delLast();
-		}
-		else if (iCode === 27)
-		{
-			evt.preventDefault();
-			pEditor.Commands.end();
+			if (iCode === 8 || iCode === 46)
+			{
+				pEditor.Commands.delLast();
+			}
+			else if (iCode === 27)
+			{
+				pEditor.Commands.end();
+			}
+			if (iCode === 8)
+			{
+				evt.preventDefault();
+			}	
 		}
 	});
 });

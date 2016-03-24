@@ -19,23 +19,15 @@
 	</head>
 	<body>
 
-		<div id="SVGEditorA_TextOut" style="display: inline; width: 25%; margin: 10px;">
-		</div>
-	<!-- 	<div id="SVGEditorB_TextOut" style="display: inline; width: 25%; margin: 10px;">
-		</div>
-		<div id="SVGEditorC_TextOut" style="display: inline; width: 25%; margin: 10px;">
-		</div> -->
-
-		<br />
-
 		<div style="margin: 20px; display: inline-block;" id="SVGEditorA">
 		</div>
 
-		<!-- <div style="margin: 20px; display: inline-block;" id="SVGEditorB">
-		</div>
+		
 
-		<div style="margin: 20px; display: inline-block;" id="SVGEditorC">
-		</div> -->
+		<div id="SVGEditorA_TextOut" style="display: block; position: fixed; width: 700px; height: 100%; box-sizing: border-box; top: 0px; right: 0px; padding: 20px;">
+		</div>
+		<br />
+		<span>colour current layer: </span><input type="text" oninput="setCurrentFill(this.value);" placeholder="#fill"></input>
 
 		<script>
 			window.editor = new SVGEditor(document.getElementById('SVGEditorA'), {
@@ -48,30 +40,12 @@
 				textOut: 'SVGEditorA_TextOut',
 				wireframe: true
 			});
+
+			function setCurrentFill(strFill)
+			{
+				'use strict';
+				window.editor.Commands.setFillColor(strFill);
+			}
 		</script>
-<!-- 
-		<script>
-			window.editor = new SVGEditor(document.getElementById('SVGEditorB'), {
-				canvas: {
-					width: 50,
-					height: 50
-				},
-				width: 500,
-				height: 500,
-				textOut: 'SVGEditorB_TextOut'
-			});
-		</script>
-		<script>
-			window.editor = new SVGEditor(document.getElementById('SVGEditorC'), {
-				canvas: {
-					width: 50,
-					height: 50
-				},
-				width: 500,
-				height: 500,
-				textOut: 'SVGEditorC_TextOut'
-			});
-		</script>
-		 -->
 	</body>
 </html>
