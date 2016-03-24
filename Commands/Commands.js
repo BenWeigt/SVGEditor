@@ -53,7 +53,7 @@ SVGEditor.Modules.add('Commands', {}, function(pEditor)
 			{
 				return;
 			}
-			pEditor.activeDraw.z();
+			pEditor.activeDraw.z(pEditor.activePoint);
 		},
 
 		selectLayer: function(iLayer)

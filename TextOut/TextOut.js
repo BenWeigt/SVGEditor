@@ -23,9 +23,9 @@ SVGEditor.Modules.add('TextOut', {}, function(pEditor)
 
 
 	pEditor.Canvas.CanvasOverlay.svg.addEventListener('click', function(evt){
-		if (pEditor.currentPixel)
+		if (pEditor.currentPoint)
 		{
-			console.log(pEditor.currentPixel.pos);
+			console.log(pEditor.currentPoint.pos);
 		}
 	});
 

@@ -21,6 +21,11 @@ SVGEditor.Modules.add('Canvas/Draw', {}, function(pEditor)
 
 	Path.prototype.m = function(pPoint)
 	{
+		if (this.points.length && /[m]/gi.test(this.points[this.points.length-1]))
+		{
+			this.points.pop();
+			this.canvasPoints.pop();
+		}
 		var pos = pPoint.pos;
 		var relX = pos.x - this.getXBefore();
 		var relY = pos.y - this.getYBefore();
@@ -75,13 +80,30 @@ SVGEditor.Modules.add('Canvas/Draw', {}, function(pEditor)
 
 	Path.prototype.z = function(pPoint)
 	{
-		this.points.push('z');
-		this.canvasPoints.push(pPoint);
+		if (this.points.length && this.points[this.points.length-1].toLowerCase() === 'z')
+		{
+			return;
+		}
+		this.points.push('Z');
+		for (var i = this.points.length - 1; i >= 0; i--) 
+		{
+			if (/[m]/gi.test(this.points[i]))
+			{
+				this.canvasPoints.push(this.canvasPoints[i]);
+				break;
+			}
+		}
+
 		this.node.setAttributeNS(null, 'd', this.getPath());
 	};
 
 	Path.prototype.M = function(pPoint)
 	{
+		if (this.points.length && /[m]/gi.test(this.points[this.points.length-1]))
+		{
+			this.points.pop();
+			this.canvasPoints.pop();
+		}
 		var pos = pPoint.pos;
 
 		this.points.push('M'+pos.x+' '+pos.y);
@@ -126,11 +148,22 @@ SVGEditor.Modules.add('Canvas/Draw', {}, function(pEditor)
 		this.node.setAttributeNS(null, 'd', this.getPath());
 	};
 
-	Path.prototype.Z = function(pPoint)
+	Path.prototype.Z = function()
 	{
-		var pos = pPoint.pos;
+		if (this.points.length && this.points[this.points.length-1].toLowerCase() === 'z')
+		{
+			return;
+		}
 		this.points.push('Z');
-		this.canvasPoints.push(pPoint);
+		for (var i = this.points.length - 1; i >= 0; i--) 
+		{
+			if (/[m]/gi.test(this.points[i]))
+			{
+				this.canvasPoints.push(this.canvasPoints[i]);
+				break;
+			}
+		}
+
 		this.node.setAttributeNS(null, 'd', this.getPath());
 	};
 

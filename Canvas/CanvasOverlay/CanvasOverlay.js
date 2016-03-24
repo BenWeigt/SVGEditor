@@ -13,23 +13,37 @@ SVGEditor.Modules.add('Canvas/CanvasOverlay', {}, function(pEditor)
 	m_css.pixA = pEditor.CSSClass.newClass(m_css.svg);
 	m_css.pixH = pEditor.CSSClass.newClass(m_css.svg);
 
+	m_css.vecP = pEditor.CSSClass.newClass(m_css.svg);
+	m_css.vecC = pEditor.CSSClass.newClass(m_css.svg);	
+
 	var m_nSVGCanvas = pEditor.ElementConstructor.newElementSVG('svg', {
 		width: pEditor.Canvas.drawHeight + (m_iPadding * 2),
 		height: pEditor.Canvas.drawWidth + (m_iPadding * 2),
 		viewBox: '0 0 ' + (pEditor.Canvas.drawHeight + (m_iPadding * 2)) + ' ' + (pEditor.Canvas.drawWidth + (m_iPadding * 2)),
 	});
 
+	var m_bWireframe = pEditor.config.wireframe;
 	pEditor.content.appendChild(m_nSVGCanvas);
 	pEditor.Canvas.CanvasOverlay = {
 		svg: m_nSVGCanvas,
-		
+
 		getPoint: function(x, y)
 		{
-			if (m_arrPixelMatrix[x] && m_arrPixelMatrix[x][y])
+			if (m_arrPointMatrix[x] && m_arrPointMatrix[x][y])
 			{
-				return m_arrPixelMatrix[x][y];
+				return m_arrPointMatrix[x][y];
 			}
 			return null;
+		},
+
+		enableWireframe: function()
+		{
+			m_bWireframe = true;
+		},
+
+		disableWireframe: function()
+		{
+			m_bWireframe = false;
 		}
 	};
 
@@ -55,15 +69,16 @@ SVGEditor.Modules.add('Canvas/CanvasOverlay', {}, function(pEditor)
 	});
 
 	/**
-	 * Pixels
+	 * Points
 	 */
-	function Pixel(x, y, svg, posX, posY)
+	function Point(x, y, svg, posX, posY)
 	{
 		this.dot = pEditor.ElementConstructor.newElementSVG('circle', {
 			cx: x,
 			cy: y
 		});
-		svg.appendChild(this.dot);
+		this.svg = svg;
+		this.svg.appendChild(this.dot);
 		m_css.pix.applyClassTo(this.dot);
 		this.x = x;
 		this.y = y;
@@ -71,9 +86,75 @@ SVGEditor.Modules.add('Canvas/CanvasOverlay', {}, function(pEditor)
 			x: posX,
 			y: posY
 		};
+		this.vecedPoints = [];
+		this.vecToPoints = [];
+
+		this.vecToCursor = null;
 	}
 
-	var m_arrPixelMatrix = [];
+	Point.prototype.vectorToPoint = function(pPoint)
+	{
+		var iIndex = this.vecedPoints.indexOf(pPoint);
+		if (iIndex == -1)
+		{
+			var nVector = pEditor.ElementConstructor.newElementSVG('line', {
+				x1: this.x,
+				y1: this.y,
+				x2: pPoint.x,
+				y2: pPoint.y
+			});
+			this.vecedPoints.push(pPoint);
+			this.vecToPoints.push(nVector);
+			pPoint.vecedPoints.push(this);
+			pPoint.vecToPoints.push(nVector);
+
+			this.svg.appendChild(nVector);
+			m_css.vecP.applyClassTo(nVector);
+			return;
+		}
+	};
+
+	Point.prototype.vectorToCursor = function(pPoint)
+	{
+		if (!this.vecToCursor)
+		{
+			this.vecToCursor = pEditor.ElementConstructor.newElementSVG('line', {
+				x1: this.x,
+				y1: this.y,
+				x2: pPoint.x,
+				y2: pPoint.y
+			});
+			this.svg.appendChild(this.vecToCursor);
+			m_css.vecC.applyClassTo(this.vecToCursor);
+			return;
+		}
+		this.vecToCursor.setAttributeNS(null, 'x2', pPoint.x);
+		this.vecToCursor.setAttributeNS(null, 'y2', pPoint.y);
+	};
+
+	Point.prototype.removeAllVectorsToPoints = function()
+	{
+		while (this.vecToPoints.length)
+		{
+			this.svg.removeChild(this.vecToPoints.pop());
+			var pPoint = this.vecedPoints.pop();
+			var iIndex = pPoint.vecedPoints.indexOf(this);
+			pPoint.vecedPoints.splice(iIndex, 1);
+			pPoint.vecToPoints.splice(iIndex, 1);
+		}
+	};
+
+	Point.prototype.removeVectorToCursor = function()
+	{
+		if (this.vecToCursor)
+		{
+			this.svg.removeChild(this.vecToCursor);
+			this.vecToCursor = null;
+		}
+	};
+
+
+	var m_arrPointMatrix = [];
 	var m_xStep = pEditor.Canvas.drawWidth / pEditor.Canvas.width;
 	var m_yStep = pEditor.Canvas.drawHeight / pEditor.Canvas.height;
 	var m_arrColCss = [];
@@ -106,13 +187,13 @@ SVGEditor.Modules.add('Canvas/CanvasOverlay', {}, function(pEditor)
 	for (x = m_iPadding; x <= (pEditor.Canvas.drawWidth + m_iPadding); x += m_xStep)
 	{
 		var col = [];
-		m_arrPixelMatrix.push(col);
+		m_arrPointMatrix.push(col);
 		for (var y = m_iPadding; y <= (pEditor.Canvas.drawHeight + m_iPadding); y += m_yStep)
 		{
-			var nPixel = new Pixel(x, y, m_nSVGCanvas, (m_arrPixelMatrix.length - 1), col.length);
-			m_arrColCss[(m_arrPixelMatrix.length - 1)].applyClassTo(nPixel.dot);
-			m_arrRowCss[col.length].applyClassTo(nPixel.dot);
-			col.push(nPixel);
+			var nPoint = new Point(x, y, m_nSVGCanvas, (m_arrPointMatrix.length - 1), col.length);
+			m_arrColCss[(m_arrPointMatrix.length - 1)].applyClassTo(nPoint.dot);
+			m_arrRowCss[col.length].applyClassTo(nPoint.dot);
+			col.push(nPoint);
 		}
 	}
 
@@ -120,11 +201,11 @@ SVGEditor.Modules.add('Canvas/CanvasOverlay', {}, function(pEditor)
 	/**
 	 * Animate pointer
 	 */
-	var m_arrHighlightedPixels = [];
+	var m_arrHighlightedPoints = [];
 	pEditor.Animate.animate(function(){
 		if (pEditor.Canvas.CanvasOverlay.mouseIsOver)
 		{
-			var nActivePix = getClosestPixel();
+			var nActivePix = getClosestPoint();
 			if (pEditor.activePoint !== nActivePix)
 			{
 				if (pEditor.activePoint)
@@ -139,20 +220,40 @@ SVGEditor.Modules.add('Canvas/CanvasOverlay', {}, function(pEditor)
 				pEditor.activePoint = nActivePix;
 			}
 			var i;
-			for ( i = 0; i < m_arrHighlightedPixels.length; i++)
+			for (i = 0; i < m_arrHighlightedPoints.length; i++)
 			{
-				m_css.pixH.removeClassFrom(m_arrHighlightedPixels[i].dot);
-			}
-			if (pEditor.activeDraw)
-			{
-				var arrNewHighlighted = [];
-				for (i = 0; i < pEditor.activeDraw.canvasPoints.length; i++) 
+				if (!pEditor.activeDraw || pEditor.activeDraw.canvasPoints.indexOf(m_arrHighlightedPoints[i]) === -1)
 				{
-					m_css.pixH.applyClassTo(pEditor.activeDraw.canvasPoints[i].dot);
-					arrNewHighlighted.push(pEditor.activeDraw.canvasPoints[i]);
+					m_css.pixH.removeClassFrom(m_arrHighlightedPoints[i].dot);
+					m_arrHighlightedPoints[i].removeAllVectorsToPoints();
 				}
-				m_arrHighlightedPixels = arrNewHighlighted;
+				m_arrHighlightedPoints[i].removeVectorToCursor();
 			}
+			var arrNewHighlighted = [];
+			if (pEditor.activeDraw && pEditor.activeDraw.canvasPoints.length)
+			{
+
+				var pPoint = pEditor.activeDraw.canvasPoints[pEditor.activeDraw.canvasPoints.length - 1];
+				m_css.pixH.applyClassTo(pPoint.dot);
+				arrNewHighlighted.push(pPoint);
+				if (m_bWireframe)
+				{
+					pPoint.vectorToCursor(pEditor.activePoint);
+				}
+
+				for (i = 0; i < pEditor.activeDraw.canvasPoints.length - 1; i++) 
+				{
+					pPoint = pEditor.activeDraw.canvasPoints[i];
+					m_css.pixH.applyClassTo(pPoint.dot);
+					arrNewHighlighted.push(pPoint);
+					if (m_bWireframe)
+					{
+						pPoint.vectorToPoint(pEditor.activeDraw.canvasPoints[i + 1]);
+					}
+				}
+				
+			}
+			m_arrHighlightedPoints = arrNewHighlighted;
 		}
 		else
 		{
@@ -168,11 +269,11 @@ SVGEditor.Modules.add('Canvas/CanvasOverlay', {}, function(pEditor)
 	});
 
 
-	function getClosestPixel()
+	function getClosestPoint()
 	{
-		var x = Math.min(Math.max(Math.floor(((m_iOffsetX - m_iPadding) + (m_xStep / 2)) / m_xStep), 0), m_arrPixelMatrix.length - 1);
-		var y = Math.min(Math.max(Math.floor(((m_iOffsetY - m_iPadding) + (m_yStep / 2)) / m_yStep), 0), m_arrPixelMatrix[0].length - 1);
-		return m_arrPixelMatrix[x][y];
+		var x = Math.min(Math.max(Math.floor(((m_iOffsetX - m_iPadding) + (m_xStep / 2)) / m_xStep), 0), m_arrPointMatrix.length - 1);
+		var y = Math.min(Math.max(Math.floor(((m_iOffsetY - m_iPadding) + (m_yStep / 2)) / m_yStep), 0), m_arrPointMatrix[0].length - 1);
+		return m_arrPointMatrix[x][y];
 	}
 
 
@@ -206,5 +307,14 @@ SVGEditor.Modules.add('Canvas/CanvasOverlay', {}, function(pEditor)
 	pEditor.CSSClass.newSelector(m_css.svg.s + m_css.pix.S + m_css.pixA.s).setRules({
 		fill: '#4c4 !important',
 		r: '2px'
+	});
+
+	pEditor.CSSClass.newSelector(m_css.svg.s + m_css.vecP.S).setRules({
+		stroke: '#4c4',
+		'stroke-width': '1'
+	});
+	pEditor.CSSClass.newSelector(m_css.svg.s + m_css.vecC.S).setRules({
+		stroke: '#4c4',
+		'stroke-width': '1'
 	});
 });
