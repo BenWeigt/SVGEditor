@@ -18,12 +18,6 @@ SVGEditor.Modules.add('Canvas', {}, function(pEditor)
 
 	pEditor.content.appendChild(m_nSVGCanvas);
 	pEditor.Canvas.svg = m_nSVGCanvas;
-	
-
-	
-
-
-
 
 
 

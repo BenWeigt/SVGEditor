@@ -11,6 +11,7 @@ SVGEditor.Modules.add('Canvas/CanvasOverlay', {}, function(pEditor)
 	m_css.svg = pEditor.CSSClass.newClass(pEditor.CSSClass.root);
 	m_css.pix = pEditor.CSSClass.newClass(m_css.svg);
 	m_css.pixA = pEditor.CSSClass.newClass(m_css.svg);
+	m_css.pixH = pEditor.CSSClass.newClass(m_css.svg);
 
 	var m_nSVGCanvas = pEditor.ElementConstructor.newElementSVG('svg', {
 		width: pEditor.Canvas.drawHeight + (m_iPadding * 2),
@@ -19,8 +20,18 @@ SVGEditor.Modules.add('Canvas/CanvasOverlay', {}, function(pEditor)
 	});
 
 	pEditor.content.appendChild(m_nSVGCanvas);
-	pEditor.Canvas.CanvasOverlay = {};
-	pEditor.Canvas.CanvasOverlay.svg = m_nSVGCanvas;
+	pEditor.Canvas.CanvasOverlay = {
+		svg: m_nSVGCanvas,
+		
+		getPoint: function(x, y)
+		{
+			if (m_arrPixelMatrix[x] && m_arrPixelMatrix[x][y])
+			{
+				return m_arrPixelMatrix[x][y];
+			}
+			return null;
+		}
+	};
 
 	m_css.svg.applyClassTo(m_nSVGCanvas);
 	
@@ -77,7 +88,7 @@ SVGEditor.Modules.add('Canvas/CanvasOverlay', {}, function(pEditor)
 		var pColA = pEditor.CSSClass.newClass(pEditor.CSSClass.root);
 		m_arrColACss.push(pColA);
 		pEditor.CSSClass.newSelector(m_css.svg.s + pColA.s + m_css.pix.S + pCol.s).setRules({
-			fill: '#555 !important'
+			fill: '#555'
 		});
 	}
 
@@ -88,7 +99,7 @@ SVGEditor.Modules.add('Canvas/CanvasOverlay', {}, function(pEditor)
 		var pRowA = pEditor.CSSClass.newClass(pEditor.CSSClass.root);
 		m_arrRowACss.push(pRowA);
 		pEditor.CSSClass.newSelector(m_css.svg.s + pRowA.s + m_css.pix.S + pRow.s).setRules({
-			fill: '#555 !important'
+			fill: '#555'
 		});
 	}
 
@@ -109,6 +120,7 @@ SVGEditor.Modules.add('Canvas/CanvasOverlay', {}, function(pEditor)
 	/**
 	 * Animate pointer
 	 */
+	var m_arrHighlightedPixels = [];
 	pEditor.Animate.animate(function(){
 		if (pEditor.Canvas.CanvasOverlay.mouseIsOver)
 		{
@@ -125,6 +137,21 @@ SVGEditor.Modules.add('Canvas/CanvasOverlay', {}, function(pEditor)
 				m_arrColACss[nActivePix.pos.x].applyClassTo(m_nSVGCanvas);
 				m_arrRowACss[nActivePix.pos.y].applyClassTo(m_nSVGCanvas);
 				pEditor.activePoint = nActivePix;
+			}
+			var i;
+			for ( i = 0; i < m_arrHighlightedPixels.length; i++)
+			{
+				m_css.pixH.removeClassFrom(m_arrHighlightedPixels[i].dot);
+			}
+			if (pEditor.activeDraw)
+			{
+				var arrNewHighlighted = [];
+				for (i = 0; i < pEditor.activeDraw.canvasPoints.length; i++) 
+				{
+					m_css.pixH.applyClassTo(pEditor.activeDraw.canvasPoints[i].dot);
+					arrNewHighlighted.push(pEditor.activeDraw.canvasPoints[i]);
+				}
+				m_arrHighlightedPixels = arrNewHighlighted;
 			}
 		}
 		else
@@ -167,12 +194,17 @@ SVGEditor.Modules.add('Canvas/CanvasOverlay', {}, function(pEditor)
 
 	pEditor.CSSClass.newSelector(m_css.pix.s).setRules({
 		// transition: 'all 50ms linear',
-		fill: 'rgba(255,255,255,0.1)',
+		fill: 'rgba(0,0,0,0.15)',
 		r: '1px'
 	});
 
-	pEditor.CSSClass.newSelector(m_css.pix.s + m_css.pixA.s).setRules({
-		fill: '#555',
+	pEditor.CSSClass.newSelector(m_css.svg.s + m_css.pix.S + m_css.pixH.s).setRules({
+		fill: '#4c4 !important',
+		r: '2px'
+	});
+
+	pEditor.CSSClass.newSelector(m_css.svg.s + m_css.pix.S + m_css.pixA.s).setRules({
+		fill: '#4c4 !important',
 		r: '2px'
 	});
 });

@@ -44,7 +44,7 @@ SVGEditor.Modules.add('TextOut', {}, function(pEditor)
 			mousePos: pEditor.activePoint,
 			currentDraw: {
 				type: pEditor.activeDraw ? pEditor.activeDraw.type : null,
-				path: pEditor.activeDraw ? pEditor.activeDraw.path : null
+				path: pEditor.activeDraw ? pEditor.activeDraw.getPath() : null
 			}
 		};
 
@@ -56,8 +56,6 @@ SVGEditor.Modules.add('TextOut', {}, function(pEditor)
 			m_pData = pData;
 			return true;
 		}
-
-		console.log(m_pData.currentDraw && m_pData.currentDraw.path !== pData.currentDraw.path);
 		
 		return false;
 	}
