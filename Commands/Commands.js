@@ -27,6 +27,17 @@ SVGEditor.Modules.add('Commands', {}, function(pEditor)
 			{}
 		},
 
+		setFillEvenOdd: function(bEvenOdd)
+		{
+			if (pEditor.activeDraw)
+			try
+			{
+				pEditor.activeDraw.node.setAttributeNS(null, 'fill-rule', bEvenOdd ? 'evenodd' : 'nonzero');
+			}
+			catch(e)
+			{}
+		},
+
 
 		m: function(){
 			if (!pEditor.activeDraw)

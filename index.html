@@ -23,13 +23,47 @@
 		</div>
 
 		
-
-		<div id="SVGEditorA_TextOut" style="display: block; position: fixed; width: 700px; height: 100%; box-sizing: border-box; top: 0px; right: 0px; padding: 20px;">
+		<div style="border: 2px solid black; display: block; position: fixed; width: 600px; height: 240px; box-sizing: border-box; top: 0px; right: 0px; padding: 10px 20px 0px 10px;">
+			<table>
+				<tr>
+					<td style="width: 40px;">M</td>
+					<td>MoveTo.  Used to start a new path. Can also be used during a path to move without drawing.</td>
+				</tr>
+				<tr>
+					<td style="width: 40px;">H, V</td>
+					<td>Horizontal and Vertical.</td>
+				</tr>
+				<tr>
+					<td style="width: 40px;">L</td>
+					<td>LineTo. Draws a line in any direction.</td>
+				</tr>
+				<tr>
+					<td style="width: 40px;">Q</td>
+					<td>Quadradic Bezier curve. Press once to target the contour, a second time to create the curve.</td>
+				</tr>
+				<tr>
+					<td style="width: 40px;">Z</td>
+					<td>Draws from the current position back the the last created M. Useful for closing a path.</td>
+				</tr>
+				<tr>
+					<td style="width: 40px;">Esc</td>
+					<td>Drops selection on the current path</td>
+				</tr>
+				<tr>
+					<td style="width: 40px;">1-9</td>
+					<td>Selects a path</td>
+				</tr>
+			</table>
+		</div>
+		<div id="SVGEditorA_TextOut" style="border: 2px solid black; display: block; position: fixed; width: 600px; height: 100%; box-sizing: border-box; top: 0px; right: 0px; padding: 240px 20px 0px 10px;">
 		</div>
 		<br />
 		<span>colour current layer: </span><input type="text" oninput="setCurrentFill(this.value);" placeholder="#fill"></input>
+		<br />
+		<a href="" onclick="turnEvenOddOn(); return false;"> Even Odd Fill On </a> - <a href="" onclick="turnEvenOddOff(); return false;"> Even Odd Fill Off </a>
 
 		<script>
+		'use strict';
 			window.editor = new SVGEditor(document.getElementById('SVGEditorA'), {
 				canvas: {
 					width: 20,
@@ -43,8 +77,16 @@
 
 			function setCurrentFill(strFill)
 			{
-				'use strict';
 				window.editor.Commands.setFillColor(strFill);
+			}
+
+			function turnEvenOddOn()
+			{
+				window.editor.Commands.setFillEvenOdd(true);
+			}
+			function turnEvenOddOff()
+			{
+				window.editor.Commands.setFillEvenOdd(false);
 			}
 		</script>
 	</body>
